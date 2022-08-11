@@ -1,3 +1,9 @@
+
+import settings.Game;
+import settings.GameEnvironment;
+import settings.SpriteCollection;
+
+
 /**
  * Main class - driver code.
  */
@@ -7,8 +13,13 @@ public class Main {
      * @param args String[] - ignored.
      */
     public static void main(String[] args) {
-        AbstractArtDrawing art = new AbstractArtDrawing(15);
-        art.updateDisplay();
+        System.out.println("test");
+        SpriteCollection sprites = new SpriteCollection();
+        GameEnvironment environment = new GameEnvironment();
+        Game game = new Game(sprites, environment);
+        game.initialize();
+        game.run();
     }
+
 
 }

@@ -62,7 +62,10 @@ public class Point {
      * @return boolean - true if equals, else false.
      */
     public boolean equals(Point other) {
-        return this.x == other.x && this.y == other.y;
+        double epsilon = 1.0E-4;
+        double x = Math.rint(Math.abs(this.x - other.getX()));
+        double y = Math.rint(Math.abs(this.y - other.getY()));
+        return x < epsilon && y < epsilon;
     }
 
     @Override

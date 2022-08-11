@@ -1,20 +1,27 @@
 package Sprites;
 
+import Geometry.Line;
 import Geometry.Point;
 import Geometry.Velocity;
 import biuoop.DrawSurface;
+import interfaces.Sprite;
+import settings.CollisionInfo;
+import settings.Game;
+import settings.GameEnvironment;
 
 
 /**
  * Represents a Ball in 2d space.
  */
-public class Ball {
+public class Ball implements Sprite {
 
     private Point center;
     private int radius;
     private java.awt.Color color;
 
     private Velocity velocity;
+
+    private GameEnvironment environment;
 
     /**
      * Constructor.
@@ -72,9 +79,15 @@ public class Ball {
      * Draw ball on surface.
      * @param surface DrawSurface - canvas for gui.
      */
+    @Override
     public void drawOn(DrawSurface surface) {
         surface.setColor(this.color);
         surface.fillCircle(getX(), getY(), getSize());
+    }
+
+    @Override
+    public void timePassed() {
+        moveOneStep();
     }
 
     /**
@@ -104,79 +117,74 @@ public class Ball {
 
     /**
      * move the ball to new position according to ball last position and speed with single frame in gui.
-     * @param width int - width of gui.
-     * @param height int - height of gui.
      */
-    public void moveOneStep(int width, int height) {
+    public void moveOneStep() {
         if (this.velocity == null) {
             return;
         }
         // move to new position
         Point newCenter = this.getVelocity().applyToPoint(this.center);
+        Line trajectory = new Line(this.center, newCenter);
+        if (this.environment == null) {
+            this.center = newCenter;
+            return;
+        }
+        CollisionInfo info = this.environment.getClosestCollision(trajectory);
+        if (info == null) {
+            this.center = newCenter;
+            return;
+        }
+        Velocity newVelocity = info.collisionObject().hit(info.collisionPoint(), this.velocity);
         double dx = this.velocity.getDx();
         double dy = this.velocity.getDy();
-        double newX = newCenter.getX();
-        double newY = newCenter.getY();
-        if (dx > 0 && newCenter.getX() + this.radius >= width) { // check if out of bounds right bound.
-            this.velocity.setDx(-this.velocity.getDx());
-            newX = width - this.radius;
+        double x = info.collisionPoint().getX();
+        double y = info.collisionPoint().getY();
+        if (dx >= 0) {
+            newCenter.setX(x - 3);
         }
-        if (dx < 0 && newCenter.getX() - this.radius < 0) { // check if out of bounds left bound.
-            this.velocity.setDx(-this.velocity.getDx());
-            newX = this.radius;
+        if (dx <= 0) {
+            newCenter.setX(x + 3);
         }
-        if (dy > 0 && newCenter.getY() + this.radius >= height) { // check if out of bounds bottom bound.
-            this.velocity.setDy(-this.velocity.getDy());
-            newY = height - this.radius;
+
+        if (dy >= 0) {
+            newCenter.setY(y - 3);
         }
-        if (dy < 0 && newCenter.getY() - this.radius < 0) { // check if out of bounds top bound.
-            this.velocity.setDy(-this.velocity.getDy());
-            newY = this.radius;
+        if (dy <= 0) {
+            newCenter.setY(y + 3);
         }
-        this.center.setX(newX);
-        this.center.setY(newY);
+        this.center = newCenter;
+        this.velocity = newVelocity;
+
     }
 
     /**
-     * move the ball to new position according to ball last position and speed with multiple frames in gui.
-     * @param startX int - startX of frame.
-     * @param startY int - startY of frame.
-     * @param endX int - endX of frame.
-     * @param endY int - endY of frame.
+     * setter for ball center.
+     * @param center Ball.
      */
-    public void moveOneStep(int startX, int startY, int endX, int endY) {
-        if (this.velocity == null) {
-            return;
-        }
-        // move to new position.
-        Point newCenter = this.getVelocity().applyToPoint(this.center);
-        double dx = this.velocity.getDx();
-        double dy = this.velocity.getDy();
-        double newX = newCenter.getX();
-        double newY = newCenter.getY();
-        if (dx > 0 && newCenter.getX() + this.radius >= endX) { // check if out of bounds right bound.
-            this.velocity.setDx(-this.velocity.getDx());
-            newX = endX - this.radius;
-        }
-        if (dx < 0 && newCenter.getX() - this.radius < startX) { // check if out of bounds left bound.
-            this.velocity.setDx(-this.velocity.getDx());
-            newX = startX + this.radius;
-        }
-        if (dy > 0 && newCenter.getY() + this.radius >= endY) { // check if out of bounds bottom bound.
-            this.velocity.setDy(-this.velocity.getDy());
-            newY = endY - this.radius;
-        }
-        if (dy < 0 && newCenter.getY() - this.radius < startY) { // check if out of bounds top bound.
-            this.velocity.setDy(-this.velocity.getDy());
-            newY = startY + this.radius;
-        }
-        this.center.setX(newX);
-        this.center.setY(newY);
+    public void setCenter(Point center) {
+        this.center = center;
     }
+
 
     @Override
     public String toString() {
         return "Center: " + this.center + " Radius: " + this.radius + " Color: "
                 + this.color + " Velocity: " + this.velocity;
+    }
+
+    /**
+     * setter for gameEnvironment.
+     * @param gameEnvironment GameEnvironment.
+     */
+    public void setGameEnviroment(GameEnvironment gameEnvironment) {
+        this.environment = gameEnvironment;
+    }
+
+    /**
+     * Add ball to the game -> ball is a sprite, so we need to add it to list of sprites.
+     * @param game Game - game to add ball to.
+     */
+    public void addToGame(Game game) {
+        game.addSprite(this);
     }
 }

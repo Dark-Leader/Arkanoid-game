@@ -1,5 +1,7 @@
 package Geometry;
 
+import java.util.List;
+
 /**
  * Represents a line segment in 2d space.
  */
@@ -86,25 +88,25 @@ public class Line {
 
         // Special Cases
         // p1, q1 and p2 are collinear and p2 lies on segment p1q1
-        if (o1 == 0 && onSegment(this.start, other.start, this.end)
+        if (o1 == 0 && isBetween(this.start, other.start, this.end)
             && (this.start.equals(other.start) || this.end.equals(other.start))) {
             return true;
         }
 
         // p1, q1 and q2 are collinear and q2 lies on segment p1q1
-        if (o2 == 0 && onSegment(this.start, other.end, this.end)
+        if (o2 == 0 && isBetween(this.start, other.end, this.end)
             && (this.start.equals(other.end) || this.end.equals(other.end))) {
             return true;
         }
 
         // p2, q2 and p1 are collinear and p1 lies on segment p2q2
-        if (o3 == 0 && onSegment(other.start, this.start, other.end)
+        if (o3 == 0 && isBetween(other.start, this.start, other.end)
             && (other.start.equals(this.start) || other.end.equals(this.start))) {
             return true;
         }
 
         // p2, q2 and q1 are collinear and q1 lies on segment p2q2
-        if (o4 == 0 && onSegment(other.start, this.end, other.end)
+        if (o4 == 0 && isBetween(other.start, this.end, other.end)
             && (other.start.equals(this.end) || other.end.equals(this.end))) {
             return true;
         }
@@ -113,15 +115,49 @@ public class Line {
     }
 
     /**
-     * check if point r sits on the segment pq.
+     * check if point q sits on the segment pr.
      * @param p Point - start point.
      * @param q Point - end point.
      * @param r Point - point to check.
-     * @return boolean - true if point r sits on the segment pq else false.
+     * @return boolean - true if point q sits on the segment pr else false.
      */
-    static boolean onSegment(Point p, Point q, Point r) {
+    public static boolean onSegment(Point p, Point q, Point r) {
         return (q.getX() <= Math.max(p.getX(), r.getX()) && q.getX() >= Math.min(p.getX(), r.getX())
                 && q.getY() <= Math.max(p.getY(), r.getY()) && q.getY() >= Math.min(p.getY(), r.getY()));
+    }
+
+    /**
+     * improved function to determine if a point is on a line segment from start to end points.
+     * @param start Point - start point of line segment.
+     * @param end Point - end point of line segment.
+     * @param toCheck Point - check if this point is on the line segment.
+     * @return Boolean.
+     */
+    public static boolean isBetween(Point start, Point end, Point toCheck) {
+
+        double epsilon = 1E-4;
+
+        double crossproduct = (toCheck.getY() - start.getY()) * (end.getX() - start.getX())
+                - (toCheck.getX() - start.getX()) * (end.getY() - start.getY());
+
+        // compare versus epsilon for floating point values, or != 0 if using integers
+        if (Math.abs(crossproduct) > epsilon) {
+            return false;
+        }
+
+        double dotproduct = (toCheck.getX() - start.getX()) * (end.getX() - start.getX())
+                + (toCheck.getY() - start.getY()) * (end.getY() - start.getY());
+        if (dotproduct < 0) {
+            return false;
+        }
+
+        double squaredlengthba = (end.getX() - start.getX()) * (end.getX() - start.getX())
+                + (end.getY() - start.getY()) * (end.getY() - start.getY());
+        if (dotproduct > squaredlengthba) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -131,7 +167,7 @@ public class Line {
      * @param r Point.
      * @return int - 0 for collinear, 1 for clockwise, 2 counter-clockwise.
      */
-    static int orientation(Point p, Point q, Point r) {
+    public static int orientation(Point p, Point q, Point r) {
 
         int val = (int) ((q.getY() - p.getY()) * (r.getX() - q.getX())
                 - (q.getX() - p.getX()) * (r.getY() - q.getY()));
@@ -217,7 +253,7 @@ public class Line {
             double y;
             // calculate intersection point according to formula: y = ax + b where x is constant.
             b1 = getIntercept();
-            y = slope2 * x + b1;
+            y = slope1 * x + b1;
             return new Point(x, y);
         }
 
@@ -250,6 +286,26 @@ public class Line {
         xIntercept = (b2 - b1) / (slope1 - slope2);
         yIntercept = slope1 * ((b2 - b1) / (slope1 - slope2)) + b1;
         return new Point(xIntercept, yIntercept);
+    }
+
+    /**
+     * compute the closest intersection point between a rectangle and a line.
+     * could be multiple intersections -> return the closest one (could be none).
+     * @param rect Rectangle - rectangle to check with.
+     * @return Point - closest intersection point.
+     */
+    public Point closestIntersectionToStartOfLine(Rectangle rect) {
+        List<Point> intersectionPoints = rect.intersectionPoints(this);
+        double minDist = Double.POSITIVE_INFINITY;
+        Point closest = null;
+        for (Point intersection : intersectionPoints) {
+            double distance = start().distance(intersection);
+            if (distance < minDist) {
+                minDist = distance;
+                closest = intersection;
+            }
+        }
+        return closest;
     }
 
     /**
