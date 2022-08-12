@@ -1,16 +1,17 @@
 package settings;
 
-import Geometry.Line;
-import Geometry.Point;
+import geometry.Line;
+import geometry.Point;
 import interfaces.Collidable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a collection of Collidable objects in a game.
  */
 public class GameEnvironment {
-    private ArrayList<Collidable> collidables = new ArrayList<>();
+    private List<Collidable> collidables = new ArrayList<>();
 
     /**
      * add Collidable object to the collection.
@@ -18,6 +19,14 @@ public class GameEnvironment {
      */
     public void addCollidable(Collidable c) {
         this.collidables.add(c);
+    }
+
+    /**
+     * remove Collidable from the collection.
+     * @param c
+     */
+    public void removeCollidable(Collidable c) {
+        this.collidables.remove(c);
     }
 
     // Assume an object moving from line.start() to line.end().
@@ -35,7 +44,8 @@ public class GameEnvironment {
         Collidable closestObj = null;
         double minDist = Double.POSITIVE_INFINITY;
         Point closestCollisionPoint = null;
-        for (Collidable c: collidables) {
+        List<Collidable> copy = new ArrayList<>(collidables);
+        for (Collidable c: copy) {
             Point collision = trajectory.closestIntersectionToStartOfLine(c.getCollisionRectangle());
             if (collision != null) {
                 double distance = collision.distance(trajectory.start());

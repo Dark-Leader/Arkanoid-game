@@ -1,9 +1,9 @@
 package Sprites;
 
-import Geometry.Line;
-import Geometry.Point;
-import Geometry.Rectangle;
-import Geometry.Velocity;
+import geometry.Line;
+import geometry.Point;
+import geometry.Rectangle;
+import geometry.Velocity;
 import biuoop.DrawSurface;
 import biuoop.KeyboardSensor;
 import interfaces.Collidable;
@@ -53,6 +53,7 @@ public class Paddle implements Sprite, Collidable {
             this.body.setRectangle(new Rectangle(new Point(x, y), rect.getWidth(), rect.getHeight()));
         }
     }
+
     /**
      * moves paddle to the right.
      * if paddle is too close to left border then we make new paddle location next to right border.
@@ -92,12 +93,25 @@ public class Paddle implements Sprite, Collidable {
         this.body.drawOn(d);
     }
 
+    /**
+     * getter for rectangle.
+     * @return Rectangle.
+     */
     @Override
     public Rectangle getCollisionRectangle() {
         return this.body.getCollisionRectangle();
     }
+
+    /**
+     * a ball hit the paddle, so we need to check where the collision happened and give
+     * the ball a new velocity according to collision location.
+     * @param hitter Ball - ball that hit the collidable object.
+     * @param collisionPoint Point - collision point with the collidable object.
+     * @param currentVelocity Velocity - ball velocity prior to the collision.
+     * @return
+     */
     @Override
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+    public Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity) {
         /**
          * split paddle into 5 sections:
          * first section -> make ball move very left.
@@ -115,17 +129,19 @@ public class Paddle implements Sprite, Collidable {
         }
         double xMin = top.start().getX();
         double speed = Math.sqrt(Math.pow(currentVelocity.getDx(), 2) + Math.pow(currentVelocity.getDy(), 2));
+        Velocity result;
         if (collisionPoint.getX() < xMin + ratio) {
-            return Velocity.fromAngleAndSpeed(300, speed);
+            result = Velocity.fromAngleAndSpeed(300, speed);
         } else if (collisionPoint.getX() < xMin + ratio * 2) {
-            return Velocity.fromAngleAndSpeed(330, speed);
+            result = Velocity.fromAngleAndSpeed(330, speed);
         } else if (collisionPoint.getX() < xMin + ratio * 3) {
-            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
+            result = new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
         } else if (collisionPoint.getX() < xMin + ratio * 4) {
-            return Velocity.fromAngleAndSpeed(30, speed);
+            result = Velocity.fromAngleAndSpeed(30, speed);
         } else {
-            return Velocity.fromAngleAndSpeed(60, speed);
+            result = Velocity.fromAngleAndSpeed(60, speed);
         }
+        return result;
     }
 
     /**

@@ -1,6 +1,6 @@
 package settings;
 
-import Geometry.Point;
+import geometry.Point;
 import interfaces.Collidable;
 
 /**

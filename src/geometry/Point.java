@@ -1,4 +1,4 @@
-package Geometry;
+package geometry;
 
 /**
  * Represents a point in 2d space.

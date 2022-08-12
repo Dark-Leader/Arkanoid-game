@@ -1,8 +1,8 @@
 package Sprites;
 
-import Geometry.Line;
-import Geometry.Point;
-import Geometry.Velocity;
+import geometry.Line;
+import geometry.Point;
+import geometry.Velocity;
 import biuoop.DrawSurface;
 import interfaces.Sprite;
 import settings.CollisionInfo;
@@ -85,9 +85,20 @@ public class Ball implements Sprite {
         surface.fillCircle(getX(), getY(), getSize());
     }
 
+    /**
+     * move in the ball in space.
+     */
     @Override
     public void timePassed() {
         moveOneStep();
+    }
+
+    /**
+     * remove the ball from the game.
+     * @param game Game.
+     */
+    public void removeFromGame(Game game) {
+        game.removeSprite(this);
     }
 
     /**
@@ -134,7 +145,7 @@ public class Ball implements Sprite {
             this.center = newCenter;
             return;
         }
-        Velocity newVelocity = info.collisionObject().hit(info.collisionPoint(), this.velocity);
+        Velocity newVelocity = info.collisionObject().hit(this, info.collisionPoint(), this.velocity);
         double dx = this.velocity.getDx();
         double dy = this.velocity.getDy();
         double x = info.collisionPoint().getX();

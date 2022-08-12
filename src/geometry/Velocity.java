@@ -1,4 +1,4 @@
-package Geometry;
+package geometry;
 
 /**
  * Represents Velocity of object in 2d space.

@@ -13,7 +13,6 @@ public class Main {
      * @param args String[] - ignored.
      */
     public static void main(String[] args) {
-        System.out.println("test");
         SpriteCollection sprites = new SpriteCollection();
         GameEnvironment environment = new GameEnvironment();
         Game game = new Game(sprites, environment);

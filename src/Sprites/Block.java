@@ -1,25 +1,29 @@
 package Sprites;
 
-import Geometry.Line;
-import Geometry.Point;
-import Geometry.Rectangle;
-import Geometry.Velocity;
+import geometry.Line;
+import geometry.Point;
+import geometry.Rectangle;
+import geometry.Velocity;
 import biuoop.DrawSurface;
 import interfaces.Collidable;
+import interfaces.HitListener;
+import interfaces.HitNotifier;
 import interfaces.Sprite;
 import settings.Game;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Base Block object in the game.
  * could be border block, game block or paddle.
  */
-public class Block implements Collidable, Sprite {
+public class Block implements Collidable, Sprite, HitNotifier {
 
     private Rectangle rectangle;
     private Color color = Color.DARK_GRAY;
-
+    private List<HitListener> hitListeners = new ArrayList<>();
     private Velocity velocity;
 
     /**
@@ -29,6 +33,11 @@ public class Block implements Collidable, Sprite {
     public Block(Rectangle rectangle) {
         this.rectangle = rectangle;
     }
+
+    /**
+     * getter for rectangle.
+     * @return Rectangle.
+     */
     @Override
     public Rectangle getCollisionRectangle() {
         return this.rectangle;
@@ -42,13 +51,48 @@ public class Block implements Collidable, Sprite {
         this.rectangle = rectangle;
     }
 
+    private void notifyHit(Ball hitter) {
+        List<HitListener> copy = new ArrayList<>(this.hitListeners);
+        for (HitListener hl: copy) {
+            hl.hitEvent(this, hitter);
+        }
+    }
+
+    /**
+     * add listener to list of listeners.
+     * @param hl HitListener.
+     */
     @Override
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+    public void addEventListener(HitListener hl) {
+        this.hitListeners.add(hl);
+    }
+
+    /**
+     * remove listener from list of listeners.
+     * @param hl HitListener.
+     */
+    @Override
+    public void removeEventListener(HitListener hl) {
+        this.hitListeners.remove(hl);
+    }
+
+    /**
+     * A collision happened, so we check the collision happened on the block and
+     * return a new velocity to the ball according the collision location.
+     * @param hitter Ball - ball that hit the collidable object.
+     * @param collisionPoint Point - collision point with the collidable object.
+     * @param currentVelocity Velocity - ball velocity prior to the collision.
+     * @return
+     */
+    @Override
+    public Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity) {
         Velocity hitEdge = hitEdge(collisionPoint, currentVelocity);
         if (hitEdge != null) {
+            notifyHit(hitter);
             return hitEdge;
         }
         Velocity hitLine = hitSide(collisionPoint, currentVelocity);
+        notifyHit(hitter);
         return hitLine;
     }
 
@@ -70,6 +114,15 @@ public class Block implements Collidable, Sprite {
         } else {
             return new Velocity(dx, -dy);
         }
+    }
+
+    /**
+     * remove block from the game.
+     * @param game Game.
+     */
+    public void removeFromGame(Game game) {
+        game.removeSprite(this);
+        game.removeCollidable(this);
     }
 
     /**
@@ -189,7 +242,7 @@ public class Block implements Collidable, Sprite {
     }
 
     /**
-     * if block doesn't have a velocity - NOT a paddle then we do nothing, else move the block to
+     * if block doesn't have a velocity -> NOT a paddle then we do nothing, else move the block to
      * new location.
      */
     @Override
