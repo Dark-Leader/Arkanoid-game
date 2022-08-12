@@ -1,5 +1,6 @@
 package settings;
 
+import Sprites.ScoreIndicator;
 import geometry.Point;
 import geometry.Rectangle;
 import geometry.Velocity;
@@ -37,6 +38,7 @@ public class Game {
     private Counter blockCounter = new Counter();
     private Counter ballCounter = new Counter();
     private Counter scoreCounter = new Counter();
+    private ScoreIndicator scoreIndicator;
 
 
     /**
@@ -165,6 +167,14 @@ public class Game {
         }
         this.ballCounter.increase(numBalls);
 
+        int borderSize = 30;
+
+        Rectangle scoreLocation = new Rectangle(new Point(0, 0), width, borderSize);
+
+        this.scoreIndicator = new ScoreIndicator(this.scoreCounter, scoreLocation, borderSize, borderSize);
+        this.scoreIndicator.addToGame(this);
+
+
     }
 
     private boolean won() {
@@ -173,15 +183,6 @@ public class Game {
 
     private boolean lose() {
         return this.ballCounter.getValue() == 0;
-    }
-
-    private void drawScore(DrawSurface d) {
-        d.setColor(Color.YELLOW);
-        d.fillRectangle(0, 0, width, borderSize);
-        String score = "Score: " + String.valueOf(scoreCounter.getValue());
-        d.setColor(Color.BLUE);
-        d.drawText(width / 2 - borderSize, (borderSize * 3) / 4, score, 20);
-
     }
 
     /**
@@ -207,8 +208,6 @@ public class Game {
             DrawSurface d = gui.getDrawSurface();
             d.setColor(Color.BLACK);
             d.fillRectangle(0, 0, width, height);
-
-            drawScore(d);
 
             this.sprites.drawAllOn(d);
             gui.show(d);
