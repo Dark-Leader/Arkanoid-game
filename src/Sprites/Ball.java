@@ -6,8 +6,10 @@ import geometry.Velocity;
 import biuoop.DrawSurface;
 import interfaces.Sprite;
 import settings.CollisionInfo;
-import settings.Game;
+import settings.GameLevel;
 import settings.GameEnvironment;
+
+import java.awt.Color;
 
 
 /**
@@ -77,12 +79,14 @@ public class Ball implements Sprite {
 
     /**
      * Draw ball on surface.
-     * @param surface DrawSurface - canvas for gui.
+     * @param d DrawSurface - canvas for gui.
      */
     @Override
-    public void drawOn(DrawSurface surface) {
-        surface.setColor(this.color);
-        surface.fillCircle(getX(), getY(), getSize());
+    public void drawOn(DrawSurface d) {
+        d.setColor(this.color);
+        d.fillCircle(getX(), getY(), getSize());
+        d.setColor(Color.BLACK);
+        d.drawCircle(getX(), getY(), getSize());
     }
 
     /**
@@ -95,9 +99,9 @@ public class Ball implements Sprite {
 
     /**
      * remove the ball from the game.
-     * @param game Game.
+     * @param game GameLevel.
      */
-    public void removeFromGame(Game game) {
+    public void removeFromGame(GameLevel game) {
         game.removeSprite(this);
     }
 
@@ -146,22 +150,23 @@ public class Ball implements Sprite {
             return;
         }
         Velocity newVelocity = info.collisionObject().hit(this, info.collisionPoint(), this.velocity);
-        double dx = this.velocity.getDx();
-        double dy = this.velocity.getDy();
+        double dx = velocity.getDx();
+        double dy = velocity.getDy();
         double x = info.collisionPoint().getX();
         double y = info.collisionPoint().getY();
+        double space = 3;
         if (dx >= 0) {
-            newCenter.setX(x - 3);
+            newCenter.setX(x - space);
         }
-        if (dx <= 0) {
-            newCenter.setX(x + 3);
+        if (dx < 0) {
+            newCenter.setX(x + space);
         }
 
         if (dy >= 0) {
-            newCenter.setY(y - 3);
+            newCenter.setY(y - space);
         }
-        if (dy <= 0) {
-            newCenter.setY(y + 3);
+        if (dy < 0) {
+            newCenter.setY(y + space);
         }
         this.center = newCenter;
         this.velocity = newVelocity;
@@ -193,9 +198,9 @@ public class Ball implements Sprite {
 
     /**
      * Add ball to the game -> ball is a sprite, so we need to add it to list of sprites.
-     * @param game Game - game to add ball to.
+     * @param game GameLevel - game to add ball to.
      */
-    public void addToGame(Game game) {
+    public void addToGame(GameLevel game) {
         game.addSprite(this);
     }
 }

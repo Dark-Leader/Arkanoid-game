@@ -3,7 +3,7 @@ package interfaces;
 import biuoop.DrawSurface;
 
 /**
- * Represents a sprite in a game - in this game a ball.
+ * Represents a sprite in a game.
  */
 public interface Sprite {
 

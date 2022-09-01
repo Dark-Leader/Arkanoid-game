@@ -1,5 +1,7 @@
 package geometry;
 
+import java.util.Random;
+
 /**
  * Represents Velocity of object in 2d space.
  */
@@ -43,6 +45,31 @@ public class Velocity {
     }
 
     /**
+     * Generate random velocity with dx in range [minX, maxX], dy in range [minY, maxY].
+     * @param minX double.
+     * @param maxX double.
+     * @param minY double.
+     * @param maxY double.
+     * @param flipX boolean - true to randomly flip dx.
+     * @param flipY boolean - true to randomly flip dy.
+     * @return Velocity.
+     */
+    public static Velocity generateRandomVelocity(double minX, double maxX, double minY, double maxY,
+                                                   boolean flipX, boolean flipY) {
+        Random rand = new Random();
+        double dx = minX + (maxX - minX) * rand.nextDouble();
+        double dy = minY + (maxY - minY) * rand.nextDouble();
+        if (flipX && rand.nextBoolean()) {
+            dx *= -1;
+        }
+        if (flipY && rand.nextBoolean()) {
+            dy *= -1;
+        }
+
+        return new Velocity(dx, dy);
+    }
+
+    /**
      * getter dx.
      * @return double.
      */
@@ -72,5 +99,10 @@ public class Velocity {
      */
     public void setDy(double dy) {
         this.dy = dy;
+    }
+
+    @Override
+    public String toString() {
+        return "Dx: " + dx + ", Dy: " + dy;
     }
 }

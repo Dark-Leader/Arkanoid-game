@@ -4,22 +4,22 @@ import Sprites.Ball;
 import Sprites.Block;
 import interfaces.HitListener;
 import settings.Counter;
-import settings.Game;
+import settings.GameLevel;
 
 /**
  * responsible for removing balls from the game if a ball goes out of bounds.
  */
 public class BallRemover implements HitListener {
 
-    private Game game;
+    private GameLevel game;
     private Counter ballsRemaining;
 
     /**
      * Counstructor.
-     * @param game Game.
+     * @param game GameLevel.
      * @param ballsRemaining Counter - counter for number of balls remaining in the game.
      */
-    public BallRemover(Game game, Counter ballsRemaining) {
+    public BallRemover(GameLevel game, Counter ballsRemaining) {
         this.game = game;
         this.ballsRemaining = ballsRemaining;
     }

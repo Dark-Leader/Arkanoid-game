@@ -4,21 +4,21 @@ import Sprites.Ball;
 import Sprites.Block;
 import interfaces.HitListener;
 import settings.Counter;
-import settings.Game;
+import settings.GameLevel;
 
 /**
  * responsible for removing blocks from the game when a ball hits a block.
  */
 public class BlockRemover implements HitListener {
-    private Game game;
+    private GameLevel game;
     private Counter remainingBlocks;
 
     /**
      * Constructor.
-     * @param game Game.
+     * @param game GameLevel.
      * @param counter Counter - counter for number of remaining blocks in the game.
      */
-    public BlockRemover(Game game, Counter counter) {
+    public BlockRemover(GameLevel game, Counter counter) {
         this.game = game;
         this.remainingBlocks = counter;
     }

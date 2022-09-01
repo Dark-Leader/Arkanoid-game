@@ -8,7 +8,7 @@ import biuoop.DrawSurface;
 import biuoop.KeyboardSensor;
 import interfaces.Collidable;
 import interfaces.Sprite;
-import settings.Game;
+import settings.GameLevel;
 
 /**
  * Represents a paddle -> controlled by the player to move left and right.
@@ -32,6 +32,14 @@ public class Paddle implements Sprite, Collidable {
         this.body = body;
         this.leftBorder = leftBorder;
         this.rightBorder = rightBorder;
+    }
+
+    /**
+     * setter for speed of paddle.
+     * @param speed int - new speed.
+     */
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     /**
@@ -147,9 +155,9 @@ public class Paddle implements Sprite, Collidable {
     /**
      * add paddle to the game.
      * since paddle is a sprite and collidable we add it to both collections.
-     * @param g Game.
+     * @param g GameLevel.
      */
-    public void addToGame(Game g) {
+    public void addToGame(GameLevel g) {
         g.addCollidable(this);
         g.addSprite(this);
     }

@@ -9,7 +9,7 @@ import interfaces.Collidable;
 import interfaces.HitListener;
 import interfaces.HitNotifier;
 import interfaces.Sprite;
-import settings.Game;
+import settings.GameLevel;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * Constructor.
+     *
      * @param rectangle Rectangle - underlying rectangle to know the location of the block.
      */
     public Block(Rectangle rectangle) {
@@ -36,6 +37,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * getter for rectangle.
+     *
      * @return Rectangle.
      */
     @Override
@@ -45,6 +47,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * setter for rectangle.
+     *
      * @param rectangle Rectangle.
      */
     public void setRectangle(Rectangle rectangle) {
@@ -53,13 +56,14 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     private void notifyHit(Ball hitter) {
         List<HitListener> copy = new ArrayList<>(this.hitListeners);
-        for (HitListener hl: copy) {
+        for (HitListener hl : copy) {
             hl.hitEvent(this, hitter);
         }
     }
 
     /**
      * add listener to list of listeners.
+     *
      * @param hl HitListener.
      */
     @Override
@@ -69,6 +73,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * remove listener from list of listeners.
+     *
      * @param hl HitListener.
      */
     @Override
@@ -79,8 +84,9 @@ public class Block implements Collidable, Sprite, HitNotifier {
     /**
      * A collision happened, so we check the collision happened on the block and
      * return a new velocity to the ball according the collision location.
-     * @param hitter Ball - ball that hit the collidable object.
-     * @param collisionPoint Point - collision point with the collidable object.
+     *
+     * @param hitter          Ball - ball that hit the collidable object.
+     * @param collisionPoint  Point - collision point with the collidable object.
      * @param currentVelocity Velocity - ball velocity prior to the collision.
      * @return
      */
@@ -99,28 +105,57 @@ public class Block implements Collidable, Sprite, HitNotifier {
     /**
      * check which side did the ball hit the block on - could be top, left, bottom, right.
      * if top or bottom we change the dy vector of the velocity, else change dx vector.
+     *
      * @param collisionPoint Point - collision point of the ball with the block.
-     * @param current Velocity - current ball velocity prior to collision.
+     * @param current        Velocity - current ball velocity prior to collision.
      * @return Velocity - new velocity based direction of impact.
      */
     private Velocity hitSide(Point collisionPoint, Velocity current) {
         Line left = rectangle.getLeft();
         Line right = rectangle.getRight();
+        Line bottom = rectangle.getBottom();
         double dx = current.getDx();
         double dy = current.getDy();
+        if (Line.isBetween(left.start(), left.end(), collisionPoint)) {
+            if (current.getDx() < 0) { // inside paddle
+                return new Velocity(dx, dy);
+            }
+            return new Velocity(-dx, dy);
+        } else if (Line.isBetween(right.start(), right.end(), collisionPoint)) {
+
+            if (current.getDx() > 0) { // inside paddle
+                return new Velocity(dx, dy);
+            }
+            return new Velocity(-dx, dy);
+        } else if (Line.isBetween(bottom.start(), bottom.end(), collisionPoint)) {
+            if (current.getDy() > 0) { // inside paddle
+                System.out.println("INSIDE PADDLE BOTTOM COLLISION");
+                return new Velocity(dx, dy);
+            }
+            return new Velocity(dx, -dy);
+        } else {
+            if (current.getDy() < 0) { // inside paddle
+                return new Velocity(dx, dy);
+            }
+            return new Velocity(dx, -dy);
+        }
+        /**
         if (Line.isBetween(left.start(), left.end(), collisionPoint)
                 || Line.isBetween(right.start(), right.end(), collisionPoint)) {
             return new Velocity(-dx, dy);
         } else {
             return new Velocity(dx, -dy);
-        }
+         }
+         */
+
     }
 
     /**
      * remove block from the game.
-     * @param game Game.
+     *
+     * @param game GameLevel.
      */
-    public void removeFromGame(Game game) {
+    public void removeFromGame(GameLevel game) {
         game.removeSprite(this);
         game.removeCollidable(this);
     }
@@ -128,8 +163,9 @@ public class Block implements Collidable, Sprite, HitNotifier {
     /**
      * check if collision happened on one the 4 corners of the block,
      * if so then call handlers.
+     *
      * @param collisionPoint Point - collision point of ball with the block.
-     * @param current Velocity - ball velocity prior to collision.
+     * @param current        Velocity - ball velocity prior to collision.
      * @return Velocity - new ball velocity.
      */
     private Velocity hitEdge(Point collisionPoint, Velocity current) {
@@ -147,6 +183,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * handler for impact with top left corner.
+     *
      * @param current Velocity - ball velocity prior to collision.
      * @return Velocity - new ball velocity.
      */
@@ -160,11 +197,13 @@ public class Block implements Collidable, Sprite, HitNotifier {
         } else if (dx <= 0 && dy >= 0) {
             return new Velocity(dx, -dy);
         } else {
-            return new Velocity(-dx, -dy);
+            return current;
         }
     }
+
     /**
      * handler for impact with top right corner.
+     *
      * @param current Velocity - ball velocity prior to collision.
      * @return Velocity - new ball velocity.
      */
@@ -174,33 +213,38 @@ public class Block implements Collidable, Sprite, HitNotifier {
         if (dx >= 0 && dy >= 0) {
             return new Velocity(dx, -dy);
         } else if (dx >= 0 && dy <= 0) {
-            return new Velocity(-dx, -dy);
+            return current;
         } else if (dx <= 0 && dy >= 0) {
             return new Velocity(-dx, -dy);
         } else {
             return new Velocity(-dx, dy);
         }
     }
+
     /**
      * handler for impact with bottom left corner.
+     *
      * @param current Velocity - ball velocity prior to collision.
      * @return Velocity - new ball velocity.
      */
     private Velocity handleBottomLeftHit(Velocity current) {
         double dx = current.getDx();
         double dy = current.getDy();
+        System.out.println("BOTTOM RIGHT");
         if (dx >= 0 && dy >= 0) {
             return new Velocity(-dx, dy);
         } else if (dx >= 0 && dy <= 0) {
             return new Velocity(-dx, -dy);
         } else if (dx <= 0 && dy >= 0) {
-            return new Velocity(-dx, -dy);
+            return current;
         } else {
             return new Velocity(dx, -dy);
         }
     }
+
     /**
      * handler for impact with bottom right corner.
+     *
      * @param current Velocity - ball velocity prior to collision.
      * @return Velocity - new ball velocity.
      */
@@ -208,7 +252,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
         double dx = current.getDx();
         double dy = current.getDy();
         if (dx >= 0 && dy >= 0) {
-            return new Velocity(-dx, -dy);
+            return current;
         } else if (dx >= 0 && dy <= 0) {
             return new Velocity(dx, -dy);
         } else if (dx <= 0 && dy >= 0) {
@@ -220,6 +264,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * setter for color.
+     *
      * @param color Color.
      */
     public void setColor(Color color) {
@@ -228,6 +273,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * draw the block on the given draw surface.
+     *
      * @param d DrawSurface - surface to draw on.
      */
     public void drawOn(DrawSurface d) {
@@ -238,6 +284,8 @@ public class Block implements Collidable, Sprite, HitNotifier {
         int height = (int) rectangle.getHeight();
         d.setColor(color);
         d.fillRectangle(x, y, width, height);
+        d.setColor(Color.BLACK);
+        d.drawRectangle(x, y, width, height);
 
     }
 
@@ -260,6 +308,7 @@ public class Block implements Collidable, Sprite, HitNotifier {
 
     /**
      * setter from velocity.
+     *
      * @param velocity Velocity.
      */
     public void setVelocity(Velocity velocity) {
@@ -267,12 +316,11 @@ public class Block implements Collidable, Sprite, HitNotifier {
     }
 
     /**
-     * add block to a game.
-     * since a block is both a sprite and a collidable then we add the block to both collections.
-     * @param game Game - game to add block to.
+     * add the block to the game level.
+     * @param level GameLevel.
      */
-    public void addToGame(Game game) {
-        game.addSprite(this);
-        game.addCollidable(this);
+    public void addToGame(GameLevel level) {
+        level.addSprite(this);
+        level.addCollidable(this);
     }
 }

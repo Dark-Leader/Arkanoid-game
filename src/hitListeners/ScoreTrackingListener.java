@@ -26,6 +26,7 @@ public class ScoreTrackingListener implements HitListener {
      * @param hitter Ball - ball hitting the block.
      */
     public void hitEvent(Block beingHit, Ball hitter) {
+        beingHit.removeEventListener(this);
         this.currentScore.increase(pointsPerBlock);
     }
 }
